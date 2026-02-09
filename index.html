@@ -11,6 +11,7 @@
       --shadow: 0 10px 25px rgba(0,0,0,.08);
       --radius:18px; --green:#2bb673; --red:#e34b4b; --dark:#1a1a1a;
       --line:#e9dccf; --btn:#f2b07b; --btnText:#1a1a1a; --btnDisabled:#e8e1d9;
+      --accent:#ff7a1a;
     }
     *{box-sizing:border-box}
     body{
@@ -19,11 +20,11 @@
       background: radial-gradient(1200px 600px at 50% 0%, #fff, var(--bg));
       min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
     }
-    .app{ width:min(920px, 100%); display:grid; grid-template-columns: 320px 1fr; gap:18px; align-items:start; }
+    .app{ width:min(980px, 100%); display:grid; grid-template-columns: 320px 1fr; gap:18px; align-items:start; }
     .panel{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; border:1px solid var(--line); }
     .badge{ border-radius:14px; padding:10px 12px; border:1px solid var(--line); background:#fff7ef; }
     .badge .title{ font-weight:1000; letter-spacing:.5px; margin:0; font-size:16px; line-height:1.1; }
-    .badge .sub{ margin:4px 0 0 0; color:#ff7a1a; font-weight:900; font-size:12px; letter-spacing:.6px; }
+    .badge .sub{ margin:4px 0 0 0; color:var(--accent); font-weight:900; font-size:12px; letter-spacing:.6px; }
 
     .btn{
       border:none; border-radius:14px; padding:12px 14px; background:var(--btn);
@@ -63,30 +64,24 @@
 
     .promptBox{
       background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px;
-      line-height:1.8; font-size:16px; font-weight:900;
+      min-height:110px; line-height:1.75; font-size:16px; font-weight:900;
       box-shadow: inset 0 0 0 2px rgba(242,176,123,.08);
-      min-height: calc(1.8em * 3);
-      word-break: break-word;
       white-space: pre-wrap;
     }
     .promptBox .done{color:#9fb39a}
     .promptBox .current{ background:#fff2e6; border-radius:6px; padding:1px 2px; }
     .promptBox .bad{ background:#ffe1e1; border-radius:6px; padding:1px 2px; }
 
-    .promptFooter{
-      margin-top:8px;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      color:var(--muted); font-weight:900; font-size:12px;
-    }
-    .miniBtn{
-      background:#fff; border:1px solid var(--line);
-      padding:8px 10px; border-radius:12px; font-weight:1000; cursor:pointer;
-    }
-    .miniBtn:disabled{opacity:.55; cursor:not-allowed}
+    .chunkBar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:10px 0 8px;}
+    .chunkBar .chunkInfo{font-weight:1000; font-size:12px; color:#333;}
+    .chunkBar .chunkInfo b{color:#111;}
+    .chunkBar .tip{font-weight:900; font-size:12px; color:#666;}
+    .chunkBar .tip kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-weight:1000; padding:2px 6px; border-radius:8px; border:1px solid var(--line); background:#fff;}
 
     textarea{
-      width:100%; border:1px solid var(--line); border-radius:16px; padding:14px; font-size:16px; font-weight:800;
-      outline:none; min-height:120px; resize:none; background:#fff;
+      width:100%; border:1px solid var(--line); border-radius:16px; padding:14px; font-size:16px; font-weight:900;
+      outline:none; min-height:130px; resize:none; background:#fff;
+      line-height:1.6;
     }
     textarea:focus{ border-color:#f2b07b; box-shadow: 0 0 0 4px rgba(242,176,123,.22); }
 
@@ -100,6 +95,7 @@
 
     canvas{ width:100%; height:240px; border:1px solid var(--line); border-radius:16px; background:#fff; }
 
+    /* MODAL */
     .modalOverlay{ position:fixed; inset:0; background: rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; padding:16px; z-index:999; }
     .modalCard{ width:min(640px, 100%); background:#fff; border-radius:20px; padding:18px; border:1px solid var(--line); box-shadow: 0 18px 50px rgba(0,0,0,.25); }
     .modalTitle{ margin:0 0 6px 0; font-size:18px; font-weight:1100; }
@@ -116,18 +112,35 @@
     .modalCTA{ width:100%; margin-top:6px; height:48px; border-radius:14px; font-size:16px; }
     @media (max-width: 420px){ .modePick{ grid-template-columns:1fr; } }
 
+    /* ===== MOBILE: sidebar jadi ringkas (soal tidak ketutup) ===== */
     @media (max-width: 860px){
       body{ align-items:flex-start; justify-content:flex-start; padding:12px; }
       .app{ width:100%; grid-template-columns: 1fr; gap:12px; }
-      .panel.sidebar{ position: sticky; top: 10px; z-index: 50; padding: 10px; }
-      .panel.sidebar .meta, .panel.sidebar .hint, .panel.sidebar .footerRow{ display:none; }
-      .panel.sidebar .statsRow{ grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 8px 0 10px; }
-      .panel.sidebar .pill{ padding: 10px 10px; } .panel.sidebar .pill span{ font-size: 11px; } .panel.sidebar .pill b{ font-size: 16px; }
-      textarea{ min-height: 42vh; font-size:16px; }
+      .panel.sidebar{
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding: 10px;
+      }
+
+      #btnToggleStats{ display:block !important; }
+
+      /* default: detail disembunyikan */
+      #sidebarDetails{ display:none; }
+      .sidebar-expanded #sidebarDetails{ display:block; }
+
+      /* supaya sidebar tidak makan seluruh layar saat expanded */
+      .sidebar-expanded .panel.sidebar{
+        max-height: 55vh;
+        overflow: auto;
+      }
+
+      .promptBox{ max-height: 22vh; overflow:auto; font-size:15px; line-height:1.7; }
+      textarea{ min-height: 38vh; font-size:16px; }
       canvas{ height: 200px; }
+      .controls{ grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 420px){
-      .panel.sidebar .statsRow{ grid-template-columns: 1fr; }
       .controls{ grid-template-columns: 1fr; }
     }
   </style>
@@ -141,7 +154,7 @@
         <p class="sub">EXPORT&nbsp;&nbsp;IMPORT</p>
       </div>
 
-      <div class="idBox">
+      <div class="idBox" id="idBox">
         <small>Identitas Kandidat</small>
         <div id="idName">Nama: -</div>
         <div id="idPhone">No HP: -</div>
@@ -149,35 +162,40 @@
 
       <button class="btn secondary" id="btnNew" style="margin-top:10px">Kandidat Baru</button>
 
-      <div class="statsRow">
-        <div class="pill green"><span>Benar</span><b id="okCount">0</b></div>
-        <div class="pill red"><span>Salah</span><b id="errCount">0</b></div>
-        <div class="pill dark"><span>Waktu</span><b id="timeLeft">00:00</b></div>
-      </div>
+      <!-- MOBILE toggle (muncul hanya di HP via CSS) -->
+      <button class="btn secondary" id="btnToggleStats" style="margin-top:10px; display:none;">Tampilkan Detail</button>
 
-      <div class="meta">
-        <span class="chip"><span class="dot orange"></span> HR-AI Rekrutmen</span>
-        <span class="chip"><span class="dot gray"></span> Typing Test</span>
-      </div>
+      <div id="sidebarDetails">
+        <div class="statsRow">
+          <div class="pill green"><span>Benar</span><b id="okCount">0</b></div>
+          <div class="pill red"><span>Salah</span><b id="errCount">0</b></div>
+          <div class="pill dark"><span>Waktu</span><b id="timeLeft">00:00</b></div>
+        </div>
 
-      <div class="controls">
-        <button class="btn ghost" id="btnStart" disabled>Mulai</button>
-        <button class="btn ghost" id="btnFinish" disabled>Selesai</button>
-      </div>
+        <div class="meta">
+          <span class="chip"><span class="dot orange"></span> HR-AI Rekrutmen</span>
+          <span class="chip"><span class="dot gray"></span> Typing Test</span>
+        </div>
 
-      <div class="controls">
-        <button class="btn secondary" id="btnReport" disabled>Report</button>
-        <button class="btn secondary" id="btnCurve" disabled>Kurva Kerja</button>
-      </div>
+        <div class="controls">
+          <button class="btn ghost" id="btnStart" disabled>Mulai</button>
+          <button class="btn ghost" id="btnFinish" disabled>Selesai</button>
+        </div>
 
-      <div class="hint">
-        <b>Aturan:</b> Latihan 1 menit → otomatis lanjut tes 10 menit.<br/>
-        Penilaian real-time: WPM, Akurasi, jumlah benar/salah, dan kurva WPM per menit.
-      </div>
+        <div class="controls">
+          <button class="btn secondary" id="btnReport" disabled>Report</button>
+          <button class="btn secondary" id="btnCurve" disabled>Kurva Kerja</button>
+        </div>
 
-      <div class="footerRow">
-        <span id="statusText">Status: standby</span>
-        <span id="itemTotal">Item total: 0</span>
+        <div class="hint">
+          <b>Aturan:</b> Latihan 1 menit → otomatis lanjut tes 10 menit.<br/>
+          Tes utama menggunakan <b>soal per 3 baris</b>. Tekan <b>Enter</b> untuk lanjut bagian berikutnya.
+        </div>
+
+        <div class="footerRow">
+          <span id="statusText">Status: standby</span>
+          <span id="itemTotal">Item total: 0</span>
+        </div>
       </div>
     </div>
 
@@ -206,25 +224,13 @@
 
       <div class="view active" id="testView">
         <div class="promptBox" id="promptBox"></div>
-        <div class="promptFooter">
-          <span id="chunkInfo">Bagian 1</span>
-          <button class="miniBtn" id="btnNextChunk" type="button" disabled>Berikutnya (Enter)</button>
+
+        <div class="chunkBar">
+          <div class="chunkInfo" id="chunkInfo">Bagian: <b>-</b></div>
+          <div class="tip">Lanjut bagian: tekan <kbd>Enter</kbd></div>
         </div>
 
-        <div style="height:10px"></div>
-
-        <!-- FIX: matikan autocorrect/spellcheck -->
-        <textarea
-          id="inputBox"
-          placeholder="Mulai mengetik di sini..."
-          disabled
-          spellcheck="false"
-          autocomplete="off"
-          autocapitalize="off"
-          autocorrect="off"
-          inputmode="text"
-        ></textarea>
-
+        <textarea id="inputBox" placeholder="Mulai mengetik di sini..." disabled></textarea>
         <div class="hint" id="liveHint">Silakan isi identitas kandidat terlebih dahulu.</div>
       </div>
 
@@ -257,7 +263,7 @@
   <div id="candidateModal" class="modalOverlay" aria-hidden="false">
     <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <h2 id="modalTitle" class="modalTitle">Data Kandidat</h2>
-      <p class="modalDesc">Isi dulu data kandidat sebelum tes dimulai (untuk report & lookup Google Sheet).</p>
+      <p class="modalDesc">Isi dulu data kandidat sebelum tes dimulai (untuk report & kirim ke Google Sheet).</p>
 
       <div class="formRow">
         <label class="formLabel" for="candName">Nama Kandidat</label>
@@ -289,59 +295,78 @@
 
 <script>
 (() => {
+  // =========================
+  // 1) KONFIGURASI
+  // =========================
+  // GANTI dengan Web App URL kamu (yang /exec)
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwd1YbX-HnflBc0bsd-BcjVR09EV5rBxsCuR-543xc-ardVn9IHb_n-z-6kAU3mJrWs/exec";
 
   const PRACTICE_SECONDS = 60;
   const TEST_SECONDS = 600;
   const WORD_UNIT = 5;
 
-  const TARGET_CHUNK_MAX_CHARS = 170;
-  const TARGET_CHUNK_MIN_CHARS = 110;
-
+  // =========================
+  // 2) BANK TEXT (akan dipotong jadi 3 baris per bagian)
+  // =========================
   const PRACTICE_TEXT = [
     "Fokus pada akurasi dan ritme. Ketik dengan tenang tanpa terburu-buru.",
     "Latihan satu menit ini untuk pemanasan. Setelah itu tes utama dimulai."
   ].join(" ");
 
   const TEST_TEXTS = [
-    "Kerja yang rapi dimulai dari kebiasaan kecil: menamai file dengan jelas, menyimpan dokumen pada folder yang benar, dan menutup pekerjaan dengan cek ulang.",
-    "Dalam pekerjaan administrasi, ketelitian lebih penting daripada kecepatan sesaat. Pastikan angka, nama, tanggal, dan dokumen sesuai sebelum menekan tombol kirim.",
-    "Komunikasi yang baik bukan soal kalimat panjang, tetapi pesan yang jelas. Sampaikan konteks, tujuan, dan langkah yang diharapkan agar mudah ditindaklanjuti.",
-    "Saat menghadapi perubahan, tetap tenang dan fokus pada langkah berikutnya. Pecah masalah menjadi bagian kecil, selesaikan satu per satu, lalu validasi hasilnya.",
-    "Manajemen waktu bisa dimulai dari hal sederhana: tentukan prioritas harian, buat daftar tugas singkat, dan blok waktu untuk pekerjaan fokus.",
-    "Kualitas kerja ditentukan oleh konsistensi. Lebih baik stabil dan rapi daripada cepat tetapi sering salah. Jika ragu, baca ulang instruksi.",
-    "Kerja tim membutuhkan standar yang sama. Gunakan format penamaan file seragam, catatan ringkas, dan update status secara rutin.",
-    "Dalam bisnis, keputusan yang baik berangkat dari data. Catat hasil, hitung rasio, dan lihat tren agar evaluasi lebih objektif.",
-    "Saat menerima tugas baru, pastikan memahami output yang diharapkan dan kriteria kualitas agar pekerjaan terarah dan revisi berkurang.",
-    "Jika terjadi kesalahan, fokus pada perbaikan proses. Identifikasi penyebab, perbaiki alur, lalu buat langkah pencegahan.",
-    "Ketahanan kerja dibangun lewat ritme. Atur napas, jaga konsentrasi, dan konsisten pada pola kerja yang rapi.",
-    "Sikap profesional terlihat dari cara menindaklanjuti. Buat rangkuman singkat, konfirmasi poin penting, lalu jalankan tindakan yang disepakati.",
-    "Dokumentasi adalah investasi. Catatan kecil hari ini bisa menghemat banyak waktu besok.",
-    "Disiplin bukan berarti kaku, tetapi konsisten. Datang tepat waktu dan menyelesaikan tugas sesuai kesepakatan menunjukkan tanggung jawab.",
-    "Setiap pekerjaan punya risiko. Kurangi dengan cek dua kali pada bagian penting: angka, nama, alamat, jadwal, dan detail penentu keputusan."
+    "Kerja yang rapi dimulai dari kebiasaan kecil: menamai file dengan jelas, menyimpan dokumen pada folder yang benar, dan menutup pekerjaan dengan cek ulang. Kebiasaan ini membuat tim bergerak lebih cepat dan meminimalkan kesalahan yang tidak perlu.",
+    "Dalam pekerjaan administrasi, ketelitian lebih penting daripada kecepatan sesaat. Pastikan angka, nama, tanggal, dan dokumen sesuai sebelum menekan tombol kirim. Satu kesalahan kecil bisa membuat proses tertunda dan harus diulang.",
+    "Komunikasi yang baik bukan soal kalimat panjang, tetapi pesan yang jelas. Sampaikan konteks, tujuan, dan langkah yang diharapkan agar orang lain mudah memahami dan menindaklanjuti tanpa kebingungan.",
+    "Saat menghadapi perubahan, tetap tenang dan fokus pada langkah berikutnya. Pecah masalah menjadi bagian kecil, selesaikan satu per satu, lalu validasi hasilnya sebelum melanjutkan ke tahap berikutnya.",
+    "Manajemen waktu bisa dimulai dari hal sederhana: tentukan prioritas harian, buat daftar tugas singkat, dan blok waktu untuk pekerjaan fokus. Hindari berpindah-pindah tugas terlalu sering karena membuat energi cepat habis.",
+    "Kualitas kerja ditentukan oleh konsistensi. Lebih baik stabil dan rapi daripada cepat tetapi sering salah. Jika ragu, berhenti sebentar, baca ulang instruksi, dan pastikan langkah yang diambil sudah sesuai.",
+    "Kerja tim membutuhkan standar yang sama. Gunakan format penamaan file yang seragam, catatan yang ringkas, dan update status secara rutin. Standar ini membantu semua orang memahami progres tanpa perlu bertanya berulang kali.",
+    "Dalam dunia bisnis, keputusan yang baik berangkat dari data. Catat hasil, hitung rasio, dan lihat tren. Dengan data, evaluasi menjadi lebih objektif dan langkah perbaikan bisa lebih tepat sasaran.",
+    "Saat menerima tugas baru, pastikan memahami definisi berhasilnya pekerjaan. Tanyakan batas waktu, output yang diharapkan, dan kriteria kualitas. Dengan begitu, pekerjaan lebih terarah dan risiko revisi berkurang.",
+    "Jika terjadi kesalahan, fokus pada perbaikan, bukan menyalahkan. Identifikasi penyebab, perbaiki proses, lalu buat langkah pencegahan agar kesalahan yang sama tidak terulang.",
+    "Ketahanan kerja dibangun lewat ritme. Atur napas, jaga konsentrasi, dan konsisten pada pola kerja yang rapi. Saat lelah, ambil jeda singkat lalu kembali fokus pada satu langkah berikutnya.",
+    "Sikap profesional terlihat dari cara menindaklanjuti. Setelah menerima informasi, buat rangkuman singkat, konfirmasi poin penting, lalu jalankan tindakan yang disepakati. Ini menghindari miskomunikasi.",
+    "Dokumentasi adalah investasi. Catatan kecil hari ini bisa menghemat banyak waktu besok. Simpan ringkasan rapat, keputusan, dan alasan perubahan agar tim mudah melacak riwayat pekerjaan.",
+    "Disiplin bukan berarti kaku, tetapi konsisten. Datang tepat waktu, menyelesaikan tugas sesuai kesepakatan, dan menjaga kualitas output adalah tanda tanggung jawab yang bisa dipercaya.",
+    "Setiap pekerjaan punya risiko. Cara menguranginya adalah cek dua kali pada bagian penting: angka, nama, alamat, jadwal, serta detail yang menjadi penentu keputusan. Jangan terburu-buru pada tahap akhir."
   ];
 
+  // =========================
+  // 3) STATE
+  // =========================
   const state = {
-    phase: "idle",
+    phase: "idle",              // idle | practice | test | done
     timerId: null,
     secondsLeft: 0,
 
-    okTotal: 0,
-    errTotal: 0,
+    // global score (test only, practice akan reset)
+    ok: 0,
+    err: 0,
+    total: 0,
+    charOkTotal: 0,
 
-    currentTarget: "",
-    poolWords: [],
-
-    startAt: 0,
+    // minute curve
     wpmByMinute: Array(10).fill(0),
     minuteIndex: 0,
     minuteCharOkStart: 0,
-    charOkTotal: 0,
-    chunkNo: 1
+    startAt: 0,
+
+    // chunk mode (3 lines)
+    chunks: [],                 // array of chunk strings
+    chunkIndex: 0,              // active chunk
+    chunkTypedRaw: "",          // what user typed in input
+    chunkOk: 0,
+    chunkErr: 0,
+
+    // practice mode uses single prompt (not chunked)
+    practicePrompt: PRACTICE_TEXT
   };
 
   const candidate = { name:"", phone:"", mode:"practice" };
 
+  // =========================
+  // 4) ELEMENTS
+  // =========================
   const el = {
     okCount: document.getElementById("okCount"),
     errCount: document.getElementById("errCount"),
@@ -354,9 +379,6 @@
     minuteLine: document.getElementById("minuteLine"),
 
     promptBox: document.getElementById("promptBox"),
-    chunkInfo: document.getElementById("chunkInfo"),
-    btnNextChunk: document.getElementById("btnNextChunk"),
-
     inputBox: document.getElementById("inputBox"),
     liveHint: document.getElementById("liveHint"),
 
@@ -366,6 +388,9 @@
     btnReport: document.getElementById("btnReport"),
     btnCurve: document.getElementById("btnCurve"),
     btnSave: document.getElementById("btnSave"),
+
+    btnToggleStats: document.getElementById("btnToggleStats"),
+    sidebar: document.querySelector(".panel.sidebar"),
 
     tabs: [...document.querySelectorAll(".tabBtn")],
     views: {
@@ -385,23 +410,32 @@
     idName: document.getElementById("idName"),
     idPhone: document.getElementById("idPhone"),
 
-    modal: document.getElementById("candidateModal"),
-    inpName: document.getElementById("candName"),
-    inpPhone: document.getElementById("candPhone"),
-    errName: document.getElementById("errName"),
-    errPhone: document.getElementById("errPhone"),
-    btnModalStart: document.getElementById("btnModalStart"),
-    pickBtns: [...document.querySelectorAll(".pickBtn")]
+    chunkInfo: document.getElementById("chunkInfo"),
   };
 
+  const modal = document.getElementById("candidateModal");
+  const inpName = document.getElementById("candName");
+  const inpPhone = document.getElementById("candPhone");
+  const errName = document.getElementById("errName");
+  const errPhone = document.getElementById("errPhone");
+  const btnModalStart = document.getElementById("btnModalStart");
+  const pickBtns = [...document.querySelectorAll(".pickBtn")];
+
+  // =========================
+  // 5) UTIL
+  // =========================
   const pad2 = n => String(n).padStart(2,"0");
   const fmtTime = s => `${pad2(Math.floor(s/60))}:${pad2(s%60)}`;
   const clamp = (v,min,max) => Math.max(min, Math.min(max,v));
   const randPick = arr => arr[Math.floor(Math.random()*arr.length)];
 
   function escapeHtml(str){
-    return str.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-              .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    return (str||"")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
   function switchTab(viewId){
@@ -416,37 +450,98 @@
   }
   function isValidPhone(p){ return /^08\d{8,11}$/.test(p); }
 
-  // ====== FIX inti: normalisasi char biar "terlihat sama" tidak dianggap beda ======
+  // Normalisasi teks untuk menghindari "bug dianggap salah" karena karakter invisible / spasi ganjil:
+  // - samakan newline \r\n -> \n
+  // - hilangkan NBSP
+  // - normalisasi tanda kutip
+  // - kompres spasi ganda menjadi satu (tapi tetap menjaga newline)
   function normalizeTextForCompare(s){
-    if (s == null) return "";
-    return String(s)
-      .replace(/\r\n/g,"\n")
-      .replace(/\r/g,"\n")
-      .replace(/\u00A0/g," ")         // NBSP -> spasi biasa
-      .replace(/\u2018|\u2019/g,"'")  // smart single quotes
-      .replace(/\u201C|\u201D/g,'"')  // smart double quotes
-      .replace(/\u2026/g,"...");      // ellipsis
+    return (s||"")
+      .replace(/\r\n/g, "\n")
+      .replace(/\u00A0/g, " ")
+      .replace(/[“”]/g, '"')
+      .replace(/[‘’]/g, "'")
+      .replace(/[ \t]+/g, " ")
+      .replace(/[ ]+\n/g, "\n")
+      .replace(/\n[ ]+/g, "\n");
   }
 
-  function setPick(mode){
-    candidate.mode = mode;
-    el.pickBtns.forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  // =========================
+  // 6) BUILD CHUNKS (3 BARIS)
+  // =========================
+  // Kita buat teks panjang dari bank, lalu "wrap" ke lebar karakter agar jadi beberapa baris.
+  // Setelah itu, gabungkan per 3 baris sebagai 1 chunk.
+  function buildLongText(minChars = 6500){
+    let out = "";
+    while (out.length < minChars){
+      out += (out ? " " : "") + randPick(TEST_TEXTS);
+    }
+    return out.trim();
   }
 
+  // Wrap naive by char length (biar konsisten di HP/Desktop tanpa tergantung font)
+  function wrapToLines(text, maxLen=62){
+    const words = text.split(/\s+/).filter(Boolean);
+    const lines = [];
+    let line = "";
+    for (const w of words){
+      if (!line.length){
+        line = w;
+      } else if ((line.length + 1 + w.length) <= maxLen){
+        line += " " + w;
+      } else {
+        lines.push(line);
+        line = w;
+      }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function linesToChunks(lines, linesPerChunk=3){
+    const chunks = [];
+    for (let i=0;i<lines.length;i+=linesPerChunk){
+      const part = lines.slice(i, i+linesPerChunk).join("\n");
+      chunks.push(part);
+    }
+    return chunks;
+  }
+
+  function buildChunks(){
+    const longText = buildLongText(8000);
+    const lines = wrapToLines(longText, 62);
+    const chunks = linesToChunks(lines, 3);
+
+    // Pastikan minimal chunk cukup banyak (10 menit). Tambahkan lagi jika kurang.
+    while (chunks.length < 40){
+      const more = wrapToLines(buildLongText(2500), 62);
+      chunks.push(...linesToChunks(more, 3));
+    }
+    return chunks;
+  }
+
+  // =========================
+  // 7) UI HELPERS
+  // =========================
   function syncIdentityUI(){
     el.idName.textContent = `Nama: ${candidate.name || "-"}`;
     el.idPhone.textContent = `No HP: ${candidate.phone || "-"}`;
   }
 
+  function setPick(mode){
+    candidate.mode = mode;
+    pickBtns.forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  }
+
   function openCandidateModal(){
-    el.modal.style.display = "flex";
-    el.modal.setAttribute("aria-hidden","false");
+    modal.style.display = "flex";
+    modal.setAttribute("aria-hidden","false");
 
     try{
       const saved = JSON.parse(localStorage.getItem("bei_candidate") || "null");
       if (saved && saved.name && saved.phone){
-        el.inpName.value = saved.name;
-        el.inpPhone.value = saved.phone;
+        inpName.value = saved.name;
+        inpPhone.value = saved.phone;
       }
     }catch(e){}
 
@@ -454,12 +549,13 @@
     el.btnStart.disabled = true;
     el.btnFinish.disabled = true;
     el.inputBox.disabled = true;
-    setTimeout(() => el.inpName.focus(), 80);
+
+    setTimeout(() => inpName.focus(), 80);
   }
 
   function closeCandidateModal(){
-    el.modal.style.display = "none";
-    el.modal.setAttribute("aria-hidden","true");
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden","true");
   }
 
   function setPhase(phase){
@@ -470,13 +566,14 @@
       el.modeTag.textContent = "—";
       el.statusText.textContent = "Status: standby";
       el.minuteLine.textContent = "Menit 0 / 10";
+
       el.btnReport.disabled = true;
       el.btnCurve.disabled = true;
       el.btnSave.disabled = true;
+
       el.btnStart.disabled = !candidate.phone;
       el.btnFinish.disabled = true;
       el.inputBox.disabled = true;
-      el.btnNextChunk.disabled = true;
     }
 
     if (phase === "practice"){
@@ -486,8 +583,8 @@
       el.btnFinish.disabled = false;
       el.inputBox.disabled = false;
       el.btnStart.disabled = true;
-      el.btnNextChunk.disabled = true;
       el.inputBox.focus();
+      el.chunkInfo.innerHTML = "Latihan (bebas)";
     }
 
     if (phase === "test"){
@@ -497,7 +594,6 @@
       el.btnFinish.disabled = false;
       el.inputBox.disabled = false;
       el.btnStart.disabled = true;
-      el.btnNextChunk.disabled = true;
       el.inputBox.focus();
     }
 
@@ -505,13 +601,14 @@
       el.modeName.textContent = "Mode: Selesai";
       el.modeTag.textContent = "hasil tersedia";
       el.statusText.textContent = "Status: selesai";
+
       el.btnReport.disabled = false;
       el.btnCurve.disabled = false;
       el.btnSave.disabled = false;
+
       el.btnStart.disabled = false;
       el.btnFinish.disabled = true;
       el.inputBox.disabled = true;
-      el.btnNextChunk.disabled = true;
     }
   }
 
@@ -520,29 +617,31 @@
     state.timerId = null;
 
     state.secondsLeft = 0;
-    state.okTotal = 0;
-    state.errTotal = 0;
-    state.currentTarget = "";
-    state.poolWords = [];
-    state.startAt = 0;
+
+    state.ok = 0;
+    state.err = 0;
+    state.total = 0;
+    state.charOkTotal = 0;
 
     state.wpmByMinute = Array(10).fill(0);
     state.minuteIndex = 0;
     state.minuteCharOkStart = 0;
-    state.charOkTotal = 0;
+    state.startAt = 0;
 
-    state.chunkNo = 1;
-    el.chunkInfo.textContent = "Bagian 1";
+    state.chunks = [];
+    state.chunkIndex = 0;
+    state.chunkTypedRaw = "";
+    state.chunkOk = 0;
+    state.chunkErr = 0;
+
     el.inputBox.value = "";
-
     el.okCount.textContent = "0";
     el.errCount.textContent = "0";
     el.timeLeft.textContent = "00:00";
     el.itemTotal.textContent = "Item total: 0";
 
-    state.currentTarget = PRACTICE_TEXT;
-    renderTarget("");
-
+    el.promptBox.textContent = "";
+    el.chunkInfo.innerHTML = "Bagian: <b>-</b>";
     el.liveHint.innerHTML = candidate.phone
       ? "Tekan <b>Mulai</b> untuk memulai sesuai mode yang dipilih."
       : "Silakan isi identitas kandidat terlebih dahulu.";
@@ -554,130 +653,12 @@
     syncIdentityUI();
   }
 
-  function refillPoolWords(minWords = 250){
-    while (state.poolWords.length < minWords){
-      const p = randPick(TEST_TEXTS).replace(/\s+/g," ").trim();
-      state.poolWords.push(...p.split(" "), "");
-    }
-  }
-
-  function buildNextChunk(){
-    if (state.phase === "practice"){
-      state.currentTarget = PRACTICE_TEXT;
-      return;
-    }
-
-    refillPoolWords(300);
-
-    let out = "";
-    while (state.poolWords.length){
-      const w = state.poolWords.shift();
-      const next = (out ? out + " " : "") + (w || "");
-      const candidateText = next.replace(/\s+/g," ").trim();
-      if (candidateText.length > TARGET_CHUNK_MAX_CHARS) break;
-      out = candidateText;
-      if (out.length >= TARGET_CHUNK_MIN_CHARS && /[.!?]$/.test(out)) break;
-    }
-
-    if (!out) out = randPick(TEST_TEXTS);
-    state.currentTarget = out.replace(/\s+/g," ").trim();
-  }
-
-  function renderTarget(typedRaw){
-    const targetRaw = state.currentTarget;
-    const typed = normalizeTextForCompare(typedRaw);
-    const target = normalizeTextForCompare(targetRaw);
-
-    const upto = Math.min(typed.length, target.length);
-
-    // Untuk render highlight, kita pakai targetRaw (asli) agar visual tetap natural.
-    // Namun perbandingan gunakan versi normalized per indeks.
-    const targetVis = targetRaw; // tampilkan asli
-    const typedVis = typedRaw;   // tampilkan apa yang diketik
-
-    const uptoVis = Math.min(typedVis.length, targetVis.length);
-
-    let html = "";
-    for (let i=0;i<targetVis.length;i++){
-      const ch = targetVis[i];
-
-      if (i < uptoVis){
-        const tCh = normalizeTextForCompare(typedVis[i]);
-        const pCh = normalizeTextForCompare(targetVis[i]);
-        html += (tCh === pCh)
-          ? `<span class="done">${escapeHtml(ch)}</span>`
-          : `<span class="bad">${escapeHtml(ch)}</span>`;
-      } else if (i === uptoVis && (state.phase === "practice" || state.phase === "test")){
-        html += `<span class="current">${escapeHtml(ch)}</span>`;
-      } else {
-        html += escapeHtml(ch);
-      }
-    }
-
-    el.promptBox.innerHTML = html;
-
-    // tombol next aktif jika (normalized typed) panjang >= (normalized target)
-    el.btnNextChunk.disabled = !(typed.length >= target.length);
-  }
-
-  function computeRealtime(typedRaw){
-    const typed = normalizeTextForCompare(typedRaw);
-    const target = normalizeTextForCompare(state.currentTarget);
-
-    const len = typed.length;
-    const upto = Math.min(len, target.length);
-
-    let ok = 0, err = 0;
-    for (let i=0;i<upto;i++){
-      if (typed[i] === target[i]) ok++;
-      else err++;
-    }
-    if (len > target.length) err += (len - target.length);
-
-    const okGlobal = state.okTotal + ok;
-    const errGlobal = state.errTotal + err;
-
-    state.charOkTotal = okGlobal;
-
-    el.okCount.textContent = String(okGlobal);
-    el.errCount.textContent = String(errGlobal);
-    el.itemTotal.textContent = `Item total: ${okGlobal + errGlobal}`;
-
-    renderTarget(typedRaw);
-  }
-
-  function commitAndNext(){
-    const typed = normalizeTextForCompare(el.inputBox.value || "");
-    const target = normalizeTextForCompare(state.currentTarget);
-
-    const upto = Math.min(typed.length, target.length);
-    let ok = 0, err = 0;
-    for (let i=0;i<upto;i++){
-      if (typed[i] === target[i]) ok++;
-      else err++;
-    }
-    if (typed.length > target.length) err += (typed.length - target.length);
-
-    state.okTotal += ok;
-    state.errTotal += err;
-
-    el.inputBox.value = "";
-    buildNextChunk();
-    renderTarget("");
-
-    state.chunkNo += 1;
-    el.chunkInfo.textContent = `Bagian ${state.chunkNo}`;
-    el.btnNextChunk.disabled = true;
-
-    const total = state.okTotal + state.errTotal;
-    const acc = total ? Math.round((state.okTotal/total)*100) : 0;
-    el.liveHint.innerHTML = `Realtime: <b>${acc}%</b> akurasi • Benar <b>${state.okTotal}</b> • Salah <b>${state.errTotal}</b>.`;
-
-    el.inputBox.focus();
-  }
-
+  // =========================
+  // 8) SHEET SENDER (GET beacon)
+  // =========================
   function saveToSheet(payload){
     if (!payload.kandidatNoHP) return;
+
     const qs = new URLSearchParams({
       nama: payload.kandidatNama || "",
       nohp: payload.kandidatNoHP || "",
@@ -690,28 +671,28 @@
       wpm: String(payload.wpm || 0),
       permenit: JSON.stringify(payload.wpmByMinute || [])
     });
+
     const img = new Image();
     img.src = WEB_APP_URL + "?" + qs.toString();
   }
 
+  // =========================
+  // 9) PRACTICE
+  // =========================
   function startPractice(){
     clearInterval(state.timerId);
 
-    state.okTotal = 0;
-    state.errTotal = 0;
-    state.charOkTotal = 0;
-
+    state.ok = 0; state.err = 0; state.total = 0; state.charOkTotal = 0;
     state.wpmByMinute = Array(10).fill(0);
     state.minuteIndex = 0;
     state.minuteCharOkStart = 0;
     state.startAt = 0;
 
-    state.chunkNo = 1;
-    el.chunkInfo.textContent = "Bagian 1";
+    state.chunkTypedRaw = "";
     el.inputBox.value = "";
 
-    state.currentTarget = PRACTICE_TEXT;
-    renderTarget("");
+    el.promptBox.textContent = state.practicePrompt;
+    el.chunkInfo.innerHTML = "Latihan (bebas)";
 
     state.secondsLeft = PRACTICE_SECONDS;
     el.timeLeft.textContent = fmtTime(state.secondsLeft);
@@ -721,37 +702,138 @@
     tickLoop(() => startTest());
   }
 
+  // =========================
+  // 10) TEST (3-bar line chunks + Enter)
+  // =========================
   function startTest(){
     clearInterval(state.timerId);
 
-    state.okTotal = 0;
-    state.errTotal = 0;
-    state.charOkTotal = 0;
-
+    state.ok = 0; state.err = 0; state.total = 0; state.charOkTotal = 0;
     state.wpmByMinute = Array(10).fill(0);
     state.minuteIndex = 0;
     state.minuteCharOkStart = 0;
 
-    state.poolWords = [];
-    refillPoolWords(400);
+    state.chunks = buildChunks();
+    state.chunkIndex = 0;
+    state.chunkTypedRaw = "";
+    state.chunkOk = 0;
+    state.chunkErr = 0;
 
-    state.chunkNo = 1;
-    el.chunkInfo.textContent = "Bagian 1";
     el.inputBox.value = "";
-
-    buildNextChunk();
-    renderTarget("");
+    el.okCount.textContent = "0";
+    el.errCount.textContent = "0";
+    el.itemTotal.textContent = "Item total: 0";
 
     state.secondsLeft = TEST_SECONDS;
     state.startAt = Date.now();
 
     el.timeLeft.textContent = fmtTime(state.secondsLeft);
-    el.liveHint.innerHTML = "Tes utama dimulai (10 menit). Selesai satu bagian → tekan <b>Enter</b> untuk lanjut.";
+    el.liveHint.innerHTML = "Tes utama dimulai (10 menit). Ketik 3 baris, lalu tekan <b>Enter</b> untuk lanjut.";
     setPhase("test");
+
+    showChunk();
 
     tickLoop(() => finishNow(true));
   }
 
+  function showChunk(){
+    const idx = state.chunkIndex;
+    const total = state.chunks.length;
+    const chunk = state.chunks[idx] || "";
+    state.chunkTypedRaw = "";
+    el.inputBox.value = "";
+    el.chunkInfo.innerHTML = `Bagian: <b>${idx+1}</b> / ${total}`;
+
+    renderChunkPrompt("", chunk);
+    el.inputBox.focus();
+  }
+
+  // Render prompt chunk with highlighting (based on current typed)
+  function renderChunkPrompt(typedRaw, chunkRaw){
+    const typed = normalizeTextForCompare(typedRaw || "");
+    const chunk = normalizeTextForCompare(chunkRaw || "");
+
+    const upto = Math.min(typed.length, chunk.length);
+
+    let html = "";
+    for (let i=0;i<chunk.length;i++){
+      const ch = chunk[i];
+      if (i < upto){
+        html += (typed[i] === ch)
+          ? `<span class="done">${escapeHtml(ch)}</span>`
+          : `<span class="bad">${escapeHtml(ch)}</span>`;
+      } else if (i === upto && state.phase === "test"){
+        html += `<span class="current">${escapeHtml(ch)}</span>`;
+      } else {
+        html += escapeHtml(ch);
+      }
+    }
+    el.promptBox.innerHTML = html;
+  }
+
+  function computeChunkRealtime(){
+    const rawTyped = el.inputBox.value || "";
+    const rawChunk = state.chunks[state.chunkIndex] || "";
+
+    const typed = normalizeTextForCompare(rawTyped);
+    const chunk = normalizeTextForCompare(rawChunk);
+
+    let ok = 0, err = 0;
+    const upto = Math.min(typed.length, chunk.length);
+
+    for (let i=0;i<upto;i++){
+      if (typed[i] === chunk[i]) ok++;
+      else err++;
+    }
+    if (typed.length > chunk.length) err += (typed.length - chunk.length);
+
+    state.chunkOk = ok;
+    state.chunkErr = err;
+
+    // global
+    // (catatan: global ok dihitung dari penjumlahan setiap chunk saat commit,
+    // tapi realtime kita tampilkan global sementara = already committed + chunk realtime)
+    const committedOk = state.charOkTotal;
+    const committedErr = state.err;
+
+    const totalOk = committedOk + ok;
+    const totalErr = committedErr + err;
+    const totalAll = totalOk + totalErr;
+
+    el.okCount.textContent = String(totalOk);
+    el.errCount.textContent = String(totalErr);
+    el.itemTotal.textContent = `Item total: ${totalAll}`;
+
+    renderChunkPrompt(rawTyped, rawChunk);
+
+    const acc = totalAll ? Math.round((totalOk / totalAll) * 100) : 0;
+    el.liveHint.innerHTML = `Realtime: <b>${acc}%</b> akurasi • Benar <b>${totalOk}</b> • Salah <b>${totalErr}</b>.`;
+  }
+
+  function commitAndNext(){
+    if (state.phase !== "test") return;
+
+    // commit current chunk score into global
+    state.charOkTotal += state.chunkOk;
+    state.err += state.chunkErr;
+
+    state.ok = state.charOkTotal;
+
+    // reset chunk realtime counters
+    state.chunkOk = 0;
+    state.chunkErr = 0;
+
+    // lanjut chunk
+    state.chunkIndex = Math.min(state.chunkIndex + 1, state.chunks.length - 1);
+    showChunk();
+
+    // update report realtime
+    updateReport();
+  }
+
+  // =========================
+  // 11) FINISH
+  // =========================
   function finishNow(auto=false){
     clearInterval(state.timerId);
     state.timerId = null;
@@ -762,21 +844,13 @@
     }
 
     if (state.phase === "test"){
-      // commit partial saat finish
-      const typed = normalizeTextForCompare(el.inputBox.value || "");
-      const target = normalizeTextForCompare(state.currentTarget);
+      // commit terakhir (kalau ada yang sudah diketik)
+      computeChunkRealtime();
+      state.charOkTotal += state.chunkOk;
+      state.err += state.chunkErr;
+      state.ok = state.charOkTotal;
 
-      const upto = Math.min(typed.length, target.length);
-      let ok = 0, err = 0;
-      for (let i=0;i<upto;i++){
-        if (typed[i] === target[i]) ok++;
-        else err++;
-      }
-      if (typed.length > target.length) err += (typed.length - target.length);
-
-      state.okTotal += ok;
-      state.errTotal += err;
-
+      // finalize minute + status
       finalizeMinute(state.minuteIndex);
       setPhase("done");
       el.timeLeft.textContent = "00:00";
@@ -787,10 +861,14 @@
 
       updateReport();
       drawCurve();
+
       saveToSheet(buildPayload());
     }
   }
 
+  // =========================
+  // 12) TIMER + CURVE
+  // =========================
   function tickLoop(onEnd){
     clearInterval(state.timerId);
     state.timerId = setInterval(() => {
@@ -802,7 +880,7 @@
         const minute = Math.min(10, Math.max(1, Math.ceil(elapsed / 60)));
         el.minuteLine.textContent = `Menit ${minute} / 10`;
 
-        const currentMinuteIndex = Math.floor(elapsed / 60);
+        const currentMinuteIndex = Math.floor(elapsed / 60); // 0..9
         if (currentMinuteIndex !== state.minuteIndex && currentMinuteIndex <= 9){
           finalizeMinute(state.minuteIndex);
           state.minuteIndex = currentMinuteIndex;
@@ -827,13 +905,20 @@
     drawCurve();
   }
 
+  // =========================
+  // 13) REPORT
+  // =========================
   function updateReport(){
     let minutes = 10;
-    if (state.startAt && state.phase === "done"){
+    if (state.startAt && (state.phase === "done" || state.phase === "test")){
       const elapsedMs = Math.max(1, Date.now() - state.startAt);
       minutes = Math.max(1/60, elapsedMs / 60000);
     }
-    const ok = state.okTotal, err = state.errTotal, total = ok + err;
+
+    const ok = state.ok || 0;
+    const err = state.err || 0;
+    const total = ok + err;
+
     const acc = total ? (ok / total) : 0;
     const wpm = minutes ? Math.round((ok / WORD_UNIT) / minutes) : 0;
     const cpm = minutes ? Math.round(ok / minutes) : 0;
@@ -898,13 +983,20 @@
     }
   }
 
+  // =========================
+  // 14) PAYLOAD
+  // =========================
   function buildPayload(){
     let minutes = 10;
     if (state.startAt){
       const elapsedMs = Math.max(1, Date.now() - state.startAt);
       minutes = Math.max(1/60, elapsedMs / 60000);
     }
-    const ok = state.okTotal, err = state.errTotal, total = ok + err;
+
+    const ok = state.ok || 0;
+    const err = state.err || 0;
+    const total = ok + err;
+
     const acc = total ? (ok / total) : 0;
     const wpm = minutes ? Math.round((ok / WORD_UNIT) / minutes) : 0;
 
@@ -922,18 +1014,20 @@
     };
   }
 
-  // ===== EVENTS =====
-  el.pickBtns.forEach(b => b.addEventListener("click", () => setPick(b.dataset.mode)));
+  // =========================
+  // 15) EVENTS
+  // =========================
+  pickBtns.forEach(b => b.addEventListener("click", () => setPick(b.dataset.mode)));
 
-  el.btnModalStart.addEventListener("click", () => {
-    el.errName.textContent = ""; el.errPhone.textContent = "";
-    const name = (el.inpName.value || "").trim();
-    const phone = normalizePhone(el.inpPhone.value);
+  btnModalStart.addEventListener("click", () => {
+    errName.textContent = ""; errPhone.textContent = "";
+    const name = (inpName.value || "").trim();
+    const phone = normalizePhone(inpPhone.value);
 
     let ok = true;
-    if (!name){ el.errName.textContent = "Nama kandidat wajib diisi."; ok = false; }
-    if (!phone){ el.errPhone.textContent = "No HP wajib diisi."; ok = false; }
-    else if (!isValidPhone(phone)){ el.errPhone.textContent = "Format no HP tidak valid. Gunakan 08xxxxxxxxxx."; ok = false; }
+    if (!name){ errName.textContent = "Nama kandidat wajib diisi."; ok = false; }
+    if (!phone){ errPhone.textContent = "No HP wajib diisi."; ok = false; }
+    else if (!isValidPhone(phone)){ errPhone.textContent = "Format no HP tidak valid. Gunakan 08xxxxxxxxxx."; ok = false; }
     if (!ok) return;
 
     candidate.name = name;
@@ -943,8 +1037,11 @@
 
     closeCandidateModal();
     syncIdentityUI();
-    resetAll();
 
+    // enable start
+    el.btnStart.disabled = false;
+
+    // auto start based on chosen mode
     if (candidate.mode === "practice") startPractice();
     else startTest();
   });
@@ -962,31 +1059,42 @@
     if (state.phase === "practice" || state.phase === "test") finishNow(false);
   });
 
-  el.btnNextChunk.addEventListener("click", () => {
-    if (state.phase !== "test") return;
-    if (el.btnNextChunk.disabled) return;
-    commitAndNext();
-  });
+  // input realtime
+  el.inputBox.addEventListener("input", () => {
+    if (state.phase === "practice"){
+      // practice: compare vs practicePrompt (opsional), kita tampilkan sederhana
+      // biar kandidat tidak pusing, practice hanya timer dan feel
+      const typed = normalizeTextForCompare(el.inputBox.value || "");
+      const prompt = normalizeTextForCompare(state.practicePrompt || "");
+      let ok=0, err=0;
+      const upto = Math.min(typed.length, prompt.length);
+      for (let i=0;i<upto;i++){
+        if (typed[i] === prompt[i]) ok++; else err++;
+      }
+      if (typed.length > prompt.length) err += (typed.length - prompt.length);
 
-  el.inputBox.addEventListener("input", (e) => {
-    if (state.phase !== "practice" && state.phase !== "test") return;
-    computeRealtime(e.target.value);
+      el.okCount.textContent = String(ok);
+      el.errCount.textContent = String(err);
+      el.itemTotal.textContent = `Item total: ${ok + err}`;
 
-    if (state.phase === "test"){
-      const okGlobal = parseInt(el.okCount.textContent || "0", 10);
-      const errGlobal = parseInt(el.errCount.textContent || "0", 10);
-      const total = okGlobal + errGlobal;
-      const acc = total ? Math.round((okGlobal/total)*100) : 0;
-      el.liveHint.innerHTML = `Realtime: <b>${acc}%</b> akurasi • Benar <b>${okGlobal}</b> • Salah <b>${errGlobal}</b>.`;
-      updateReport();
+      // highlight practice
+      // (pakai renderChunkPrompt supaya konsisten)
+      renderChunkPrompt(el.inputBox.value || "", state.practicePrompt || "");
+
+      return;
     }
+
+    if (state.phase !== "test") return;
+    computeChunkRealtime();
+    updateReport();
   });
 
+  // Enter untuk next chunk (tes utama)
   el.inputBox.addEventListener("keydown", (e) => {
     if (state.phase !== "test") return;
     if (e.key === "Enter"){
       e.preventDefault();
-      if (!el.btnNextChunk.disabled) commitAndNext();
+      commitAndNext();
     }
   });
 
@@ -1007,10 +1115,24 @@
     alert("Data dikirim ulang ke Google Sheet.");
   });
 
-  // INIT
+  // Mobile toggle detail
+  function setToggleLabel(){
+    const expanded = el.sidebar.classList.contains("sidebar-expanded");
+    el.btnToggleStats.textContent = expanded ? "Sembunyikan Detail" : "Tampilkan Detail";
+  }
+  el.btnToggleStats.addEventListener("click", () => {
+    el.sidebar.classList.toggle("sidebar-expanded");
+    setToggleLabel();
+  });
+  setToggleLabel();
+
+  // =========================
+  // 16) INIT
+  // =========================
   resetAll();
   openCandidateModal();
 })();
 </script>
 </body>
 </html>
+
